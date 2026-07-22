@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/api/v1';
+const BASE_URL = 'https://anomaly-backend-u4ny.onrender.com/api/v1';
 
 export const analyzeTransaction = async (transactionData) => {
   const response = await axios.post(`${BASE_URL}/analyze`, [transactionData]);
