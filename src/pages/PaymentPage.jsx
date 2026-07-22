@@ -20,6 +20,27 @@ export default function PaymentPage() {
   const [error, setError] = useState(null);
   const [recentTransactions, setRecentTransactions] = useState([]);
 
+  const loadingMessages = [
+    'Processing payment...',
+    'Analyzing transaction...',
+    'Running ML model...',
+    'Almost there...',
+  ];
+  const [loadingTextIndex, setLoadingTextIndex] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setLoadingTextIndex(0);
+      interval = setInterval(() => {
+        setLoadingTextIndex((prev) => (prev + 1) % loadingMessages.length);
+      }, 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loading]);
+
   // Fetch recent transactions for sidebar
   useEffect(() => {
     const fetchRecent = async () => {
@@ -63,7 +84,12 @@ export default function PaymentPage() {
       }, 1200);
     } catch (err) {
       setLoading(false);
-      setError('Could not connect to server. Make sure the backend is running.');
+      const isNetworkError = !err.response || err.code === 'ERR_NETWORK';
+      if (isNetworkError) {
+        setError('Network error. Unable to reach server.');
+      } else {
+        setError('Transaction analysis failed. Please try again.');
+      }
       console.error('API Error:', err);
     }
   };
@@ -174,6 +200,7 @@ export default function PaymentPage() {
             setForm={setForm}
             onSubmit={handleSubmit}
             loading={loading}
+            loadingText={loadingMessages[loadingTextIndex]}
           />
 
           {/* Error message */}
